@@ -56,10 +56,10 @@ app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 # ---------- 
 
 # Load DataFrame
-df = load_data("../data/dash_ready_data.csv")
+df = load_data("./data/dash_ready_data.csv")
 
 # Load Model
-model = load_model("../model/gbc_gs.pk1")
+model = load_model("./model/gbc_gs.pk1")
 
 X_test, y_test = split_data(df, model)
 
