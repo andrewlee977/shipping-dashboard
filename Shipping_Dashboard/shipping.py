@@ -73,7 +73,7 @@ def permutation_graph():
                 y=df_perm.index,
                 orientation='h'))
 
-    fig.update_layout(title={"text": "Permutation Importance",
+    fig.update_layout(title={"text": "Permutation Feature Importance",
                             'y':0.9,
                             'x':0.5,
                             'xanchor': 'center',
@@ -90,11 +90,7 @@ def confusion_matrix():
                         z=[[111, 784], [725, 580]],
                         x=["Shipment Late", "Shipment On Time"],
                         y=["Shipment late", "Shipment On Time"],
-                        colorscale="Viridis"
-
-    ))
-    # z = [[111, 784], [725, 580]]
-    # fig = ff.create_annotated_heatmap(z)
+                        colorscale="Viridis"))
     fig.update_layout(title={"text": "Confusion Matrix",
                             'y':0.9,
                             'x':0.5,
@@ -106,8 +102,6 @@ def confusion_matrix():
                     height=500)
     return fig
 
-# fig2
-# fig2 = px.scatter(df, x="Weight_in_gms", y="Reached_on_time", size_max=30)
 
 # ------------------------------------------------------------------------------
 # App layout
@@ -119,15 +113,78 @@ app.layout = html.Div([
 
         html.Br(),
 
+        # html.Div(
+        # dcc.Markdown(''' ![](https://i2.wp.com/www.globaltrademag.com/wp-content/uploads/2020/02/www.jpg?fit=699%2C393&ssl=1)'''),
+        # style={'color': 'black', 'fontSize': 30}
+        # ),
         dbc.Row([
             dbc.Col([
                 dcc.Graph(id='perm_imp', figure=permutation_graph()),
-            ]),
-            dbc.Col([
                 dcc.Graph(id='confusion', figure=confusion_matrix()),
             ]),
-        ]),
+            dbc.Col([
+                html.Div("""ABOUT THIS DASHBOARD""", 
+                    style={'color': 'black', 'fontSize': 30}),
+                dcc.Link(href="https://www.kaggle.com/prachi13/customer-analytics"),
+                dcc.Markdown("""This dashboard was created using E-Commerce shipping
+                            data from Kaggle. Below are some important insights
+                            from exploring the data as well as a predictor at the
+                            bottom of the webpage. The dataset contains data from an
+                            electronic products company. The target variable is
+                            `Reached_on_time`, which is a binary value representing
+                            if a product arrived to the customer on time."""),
 
+                html.Div("Permutation Feature Importance", 
+                    style={'color': 'black', 'fontSize': 20}),
+                dcc.Markdown("""The permutation feature importance ranks each
+                             feature by its influence to the model score. It
+                             does so by randomly shuffling every observation
+                             for each individual feature and evaluates the
+                             drop in model score. The magnitude of the drop
+                             in model score is indicative of how much the
+                             model depends on that feature in predicting
+                             the target variable."""),
+                dcc.Markdown("""In our dataset, `Weight_in_gms` accounts for
+                             ~6.5% variability in our model score. This means
+                             that if this feature were to be randomly shuffled,
+                             the model score would drop by 6.5%, on average.
+                             This graph is extremely important because
+                             it tells us that `Weight_in_gms` is the most
+                             important feature and the features
+                             contributing less than 1% variablility are
+                             negligible and contribute noise to the model."""),
+                html.Div("Confusion Matrix",
+                        style={'color': 'black', 'fontSize': 20}),
+                dcc.Markdown("""The confusion matrix table indicates
+                             the performance of a classification model.
+                             Our confusion matrix tells us that our model
+                             has a high Recall Score (88%) but low Precision
+                             Score (57%) with an Accuracy Score of 69%
+                             (starting from 50% baseline). """),
+                html.Div("Scatter Plot",
+                        style={'color': 'black', 'fontSize': 20}),
+                dcc.Markdown("""The scatter plot illustrates the relationship
+                             between the chosen feature and the target variable
+                             `Reached_on_time`. Note that beyond `Weight_in_gms`
+                             and `Discount_offered`, a significant relationship
+                             is not found."""),
+                html.Div("Predict Late Shipping",
+                        style={'color': 'black', 'fontSize': 20}),
+                dcc.Markdown("""Use the interactive dashboard to predict
+                             if a product will arrive late. Output: (0 - Predicted
+                             Late, 1 = Predicted On Time) and the probability
+                             of the shipment being late."""),
+                html.Div("Tools",
+                        style={'color': 'black', 'fontSize': 20}),
+                dcc.Markdown("This dashboard was built using Dash by Plotly"),
+                dcc.Markdown("""The Gradient Boosting Classifier model is from
+                             Sci-kit Learn's library."""),
+                dcc.Markdown("This app is being served on an AWS EC2 instance."),
+
+            ]),
+        ]),
+        html.Div("Scatter Plot", style={'color': 'black', 'fontSize': 30}),
+        html.Br(),
         dcc.Dropdown(id="feature",
                     options=[
                         {"label": "Weight_in_gms", "value": "Weight_in_gms"},
@@ -144,115 +201,131 @@ app.layout = html.Div([
                     style={'width': "40%"}
                     ),
 
-        # html.Div([
-        #     dcc.Markdown("Hello World")
-        # ]),
+        dbc.Row([
+            dbc.Col([
+                dcc.Graph(id='scatter', figure={}),
+            ]),
+            dbc.Col([
+                # dcc.Graph(id='scatter', figure={})
+            ]),
+        ]),
 
-        dcc.Graph(id='scatter', figure={}),
 
-        
-        html.Br(),
-        dcc.Dropdown(
-            id='Warehouse_block',
-            options=[
-                {'label': 'A', 'value': 'A'},
-                {'label': 'B', 'value': 'B'},
-                {'label': 'C', 'value': 'C'},
-                {'label': 'D', 'value': 'D'},
-                {'label': 'F', 'value': 'F'}
-            ],
-            placeholder="Warehouse Block"
-        ),
-        html.Br(),
-        dcc.Dropdown(
-            id='Mode_of_Shipment',
-            options=[
-                {'label': 'Ship', 'value': 'Ship'},
-                {'label': 'Flight', 'value': 'Flight'},
-                {'label': 'Road', 'value': 'Road'}
-            ],
-            placeholder="Mode of Shipment"
-        ),
-        html.Br(),
-        dcc.Input(
-            id="Customer_care_calls",
-            placeholder="# customer care calls",
-            type="number"
-        ),
-        html.Br(),
-        html.Br(),
-        dcc.Markdown("Customer Rating"),
-        dcc.Slider(
-            id="Customer_rating",
-            min=1,
-            max=5,
-            step=1,
-            marks={
-                1: "1",
-                2: "2",
-                3: "3",
-                4: "4",
-                5: "5"
-            },
-            value=3
-        ),
-        html.Br(),
-        dcc.Input(
-            id="Cost_of_the_Product",
-            placeholder="Product Cost",
-            type="number"
-        ),
-        html.Br(),
-        html.Br(),
-        dcc.Input(
-            id="Prior_purchases",
-            placeholder="# Prior Purchases",
-            type="number"
-        ),
-        html.Br(),
-        html.Br(),
-        dcc.Dropdown(
-            id='Product_importance',
-            options=[
-                {'label': 'low', 'value': 'low'},
-                {'label': 'medium', 'value': 'medium'},
-                {'label': 'high', 'value': 'high'}
-            ],
-            placeholder="Product Importance"
-        ),
-        html.Br(),
-        dcc.Dropdown(
-            id='Gender',
-            options=[
-                {'label': 'Female', 'value': 'F'},
-                {'label': 'Male', 'value': 'M'}
-            ],
-            placeholder="Gender"
-        ),
-        html.Br(),
-        dcc.Input(
-            id="Discount_offered",
-            placeholder="Discount (%)",
-            type="number"
-        ),
-        html.Br(),
-        html.Br(),
-        dcc.Input(
-            id="Weight_in_gms",
-            placeholder="Product Weight (grams)",
-            type="number"
-        ),
-        html.Br(),
-        dbc.Button(
-                id="button",
-                n_clicks=0,
-                children="Submit",
-                color="primary"
-        ),
-        html.Br(),
-        html.Div(id="prediction"),
-        html.Div(id="predict_proba")
+        dbc.Row([
+            dbc.Col([
+                html.Div("""Predict Late Shipping""", 
+	    	             style={'color': 'black', 'fontSize': 30}),
+                html.Br(),
+                dcc.Dropdown(
+                    id='Warehouse_block',
+                    options=[
+                        {'label': 'A', 'value': 'A'},
+                        {'label': 'B', 'value': 'B'},
+                        {'label': 'C', 'value': 'C'},
+                        {'label': 'D', 'value': 'D'},
+                        {'label': 'F', 'value': 'F'}
+                    ],
+                    placeholder="Warehouse Block"
+                ),
+                html.Br(),
+                dcc.Dropdown(
+                    id='Mode_of_Shipment',
+                    options=[
+                        {'label': 'Ship', 'value': 'Ship'},
+                        {'label': 'Flight', 'value': 'Flight'},
+                        {'label': 'Road', 'value': 'Road'}
+                    ],
+                    placeholder="Mode of Shipment"
+                ),
+                html.Br(),
+                dcc.Input(
+                    id="Customer_care_calls",
+                    placeholder="# customer care calls",
+                    type="number"
+                ),
+                html.Br(),
+                html.Br(),
+                dcc.Markdown("Customer Rating"),
+                dcc.Slider(
+                    id="Customer_rating",
+                    min=1,
+                    max=5,
+                    step=1,
+                    marks={
+                        1: "1",
+                        2: "2",
+                        3: "3",
+                        4: "4",
+                        5: "5"
+                    },
+                    value=3
+                ),
+                html.Br(),
+                dcc.Input(
+                    id="Cost_of_the_Product",
+                    placeholder="Product Cost",
+                    type="number"
+                ),
+            ], md=4),
+            dbc.Col([
 
+                html.Br(),
+                dcc.Input(
+                    id="Prior_purchases",
+                    placeholder="# Prior Purchases",
+                    type="number"
+                ),
+                html.Br(),
+                html.Br(),
+                dcc.Dropdown(
+                    id='Product_importance',
+                    options=[
+                        {'label': 'low', 'value': 'low'},
+                        {'label': 'medium', 'value': 'medium'},
+                        {'label': 'high', 'value': 'high'}
+                    ],
+                    placeholder="Product Importance"
+                ),
+                html.Br(),
+                dcc.Dropdown(
+                    id='Gender',
+                    options=[
+                        {'label': 'Female', 'value': 'F'},
+                        {'label': 'Male', 'value': 'M'}
+                    ],
+                    placeholder="Gender"
+                ),
+                html.Br(),
+                dcc.Input(
+                    id="Discount_offered",
+                    placeholder="Discount (%)",
+                    type="number"
+                ),
+                html.Br(),
+                html.Br(),
+                dcc.Input(
+                    id="Weight_in_gms",
+                    placeholder="Product Weight (grams)",
+                    type="number"
+                ),
+                html.Br(),
+                html.Br(),
+                html.Br(),
+                html.Br(),
+                dbc.Button(
+                        id="button",
+                        n_clicks=0,
+                        children="Submit",
+                        color="primary"
+                ),
+                html.Br(),
+                html.Div(id="prediction"),
+                html.Div(id="predict_proba"),
+                html.Br(),
+                html.Br(),
+                html.Br()
+            ], md=4),
+        ]),
     ])
 
 
