@@ -13,6 +13,7 @@ matplotlib = "*"
 dash = "*"
 dash-bootstrap-components = "*"
 dash-core-components = "*"
+gunicorn = "*"
 
 [dev-packages]
 
