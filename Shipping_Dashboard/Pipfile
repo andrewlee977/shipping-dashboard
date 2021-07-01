@@ -9,6 +9,10 @@ jupyter = "*"
 sklearn = "*"
 category-encoders = "*"
 xgboost = "*"
+matplotlib = "*"
+dash = "*"
+dash-bootstrap-components = "*"
+dash-core-components = "*"
 
 [dev-packages]
 
