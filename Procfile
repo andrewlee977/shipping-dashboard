@@ -1,1 +1,1 @@
-web: gunicorn shipping:server
+web: python shipping.py
