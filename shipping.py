@@ -17,20 +17,24 @@ from sklearn.model_selection import train_test_split
 
 
 def load_data(filepath):
+    """Loads data to read into a DataFrame"""
     return pd.read_csv(filepath, index_col="ID")
 
 
 def load_model(filepath):
+    """Loads pretrained model for prediction"""
     return pickle.load(open(filepath, 'rb'))
 
 
 def split(df):
+    """Splits data into X and y"""
     X = df.drop(columns="Reached_on_time")
     y = df["Reached_on_time"]
     return X, y
 
 
 def split_data(df, model):
+    """Splits data using train_test_split"""
     X, y = split(df)
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2,
                                                         random_state=42)
@@ -38,6 +42,7 @@ def split_data(df, model):
 
 
 def perm_imp(model, X_test, y_test):
+    """Creates Permutation Importance DataFrame for visualization"""
     perm_imp = permutation_importance(model, X_test, y_test, n_repeats=10,
                                       n_jobs=-1, random_state=42)
     data = {"imp_mean": perm_imp["importances_mean"],
@@ -46,16 +51,15 @@ def perm_imp(model, X_test, y_test):
     # df_perm["imp_mean"].tail(10).plot(kind="barh")
     return df_perm
 
+
 external_stylesheets = [
     dbc.themes.JOURNAL, # Bootswatch theme
     'https://use.fontawesome.com/releases/v5.9.0/css/all.css',
 ]
 
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
-server = app.server
 
 # ---------- 
-
 # Load DataFrame
 df = load_data("./data/dash_ready_data.csv")
 
@@ -66,9 +70,9 @@ X_test, y_test = split_data(df, model)
 
 df_perm = perm_imp(model, X_test, y_test)
 
-
 # Permutation Importance Graph
 def permutation_graph():
+    """Graphs permutation feature importances bar graph"""
     fig = go.Figure(go.Bar(
                 x=df_perm["imp_mean"],
                 y=df_perm.index,
@@ -87,6 +91,7 @@ def permutation_graph():
     return fig
 
 def confusion_matrix():
+    """Graphs confusion matrix table"""
     fig = go.Figure(data=go.Heatmap(
                         z=[[111, 784], [725, 580]],
                         x=["Shipment Late", "Shipment On Time"],
@@ -102,7 +107,6 @@ def confusion_matrix():
                     width=600,
                     height=500)
     return fig
-
 
 # ----------------------------------------------------------------------
 # App layout
@@ -356,7 +360,6 @@ app.layout = html.Div([
 ])
 
 # ----------------------------------------------------------------
-
 # Connect the Plotly graphs with Dash Components
 @app.callback(
      Output(component_id='scatter', component_property='figure'),
@@ -365,6 +368,11 @@ app.layout = html.Div([
 
 
 def create_scatter(feature):
+    """
+    Creates scatter plot based on feature chosen by the user.
+    Plots chosen feature on x-axis and target variable on y-axis
+    Adds a line of best fit
+    """
     if feature is None:
         raise PreventUpdate
     else:
@@ -406,6 +414,11 @@ def predict_late_shipment(n_clicks, Warehouse_block, Mode_of_Shipment,
                           Cost_of_the_Product, Prior_purchases,
                           Product_importance, Gender, Discount_offered,
                           Weight_in_gms):
+    """
+    Predicts if the data input by the user about a shipment will
+    arrive late. Also provides probability of shipment arriving
+    late.
+    """
     if n_clicks == 0:
         raise PreventUpdate
     else:
