@@ -117,16 +117,7 @@ app.layout = html.Div([
     html.Div([
         html.H1("Shipping Dashboard", style={'text-align': 'center'}),
         html.Br(),
-        dbc.Row([
-            dbc.Col([
-                dcc.Graph(id='perm_imp', figure=permutation_graph()),
-                html.Div([
-                    dcc.Graph(id='confusion', figure=confusion_matrix())
-                ]),
-                
-            ]),
-            dbc.Col([
-                html.Div("""ABOUT THIS DASHBOARD""", 
+        html.Div("""ABOUT THIS DASHBOARD""", 
                     style={'color': 'black', 'fontSize': 30}),
                 dcc.Link(href=
                         "https://www.kaggle.com/prachi13/customer-analytics"),
@@ -208,6 +199,14 @@ app.layout = html.Div([
                              visualizations would be great for a more comprehensive
                              analysis of the shipping data. Thanks for
                              taking the time to explore!"""),
+        dbc.Row([
+            dbc.Col([
+                dcc.Graph(id='perm_imp', figure=permutation_graph()),                
+            ]),
+            dbc.Col([
+                html.Div([
+                    dcc.Graph(id='confusion', figure=confusion_matrix())
+                ]),
             ]),
         ]),
         html.Div("Scatter Plot", style={'color': 'black', 'fontSize': 30}),

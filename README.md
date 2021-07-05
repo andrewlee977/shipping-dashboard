@@ -1,4 +1,4 @@
-# What our app does
+# What the app does
 The app shows visualizations from E-Commerce shipping data from Kaggle
 [here](https://www.kaggle.com/prachi13/customer-analytics). It's also
 interactive in creating a scatter plot based on a user-chosen feature when
