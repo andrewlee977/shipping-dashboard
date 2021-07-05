@@ -21,4 +21,4 @@ The dataset contains 10,999 observations and 10 features. The 10 features are:
 # Target Variable
 • Reached_on_time
 
-![Home Screen](./shipping_dashboard.png "Home Screen")
+![Dashboard](./app_screenshot.png "Dashboard")
