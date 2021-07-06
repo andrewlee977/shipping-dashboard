@@ -1,1 +1,1 @@
-web: gunicorn shipping:server
+web: gunicorn shipping:server --preload
