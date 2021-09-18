@@ -33,11 +33,11 @@ def split(df):
     return X, y
 
 
-def split_data(df, model):
+def split_data(df):
     """Splits data using train_test_split"""
     X, y = split(df)
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2,
-                                                        random_state=42)
+    _, X_test, _, y_test = train_test_split(X, y, test_size=0.2,
+                                            random_state=42)
     return X_test, y_test
 
 
@@ -48,68 +48,71 @@ def perm_imp(model, X_test, y_test):
     data = {"imp_mean": perm_imp["importances_mean"],
             "imp_std": perm_imp["importances_std"]}
     df_perm = pd.DataFrame(data, index=X_test.columns).sort_values("imp_mean")
-    # df_perm["imp_mean"].tail(10).plot(kind="barh")
     return df_perm
 
 
 external_stylesheets = [
-    dbc.themes.JOURNAL, # Bootswatch theme
+    dbc.themes.JOURNAL,  # Bootswatch theme
     'https://use.fontawesome.com/releases/v5.9.0/css/all.css',
 ]
 
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
-app.config.suppress_callback_exceptions = True # see https://dash.plot.ly/urls
-app.title = 'Shipping Dashboard' # appears in browser title bar
+app.config.suppress_callback_exceptions = True  # see https://dash.plot.ly/urls
+app.title = 'Shipping Dashboard'  # appears in browser title bar
 server = app.server
 
-# ---------- 
+# ----------
 # Load DataFrame
 df = load_data("./data/dash_ready_data.csv")
 
 # Load Model
-model = load_model("./model/gbc_gs.pk1")
+model = load_model("./model/gbc.pk1")
 
-X_test, y_test = split_data(df, model)
+X_test, y_test = split_data(df)
 
 df_perm = perm_imp(model, X_test, y_test)
 
 # Permutation Importance Graph
+
+
 def permutation_graph():
     """Graphs permutation feature importances bar graph"""
     fig = go.Figure(go.Bar(
-                x=df_perm["imp_mean"],
-                y=df_perm.index,
-                orientation='h'))
+        x=df_perm["imp_mean"],
+        y=df_perm.index,
+        orientation='h'))
 
     fig.update_layout(title={"text": "Permutation Feature Importance",
-                            'y':0.9,
-                            'x':0.5,
-                            'xanchor': 'center',
-                            'yanchor': 'top'},
-                    xaxis_title="Model Accuracy Decrease",
-                    yaxis_title="Features",
-                    width=1000,
-                    height=500)
+                             'y': 0.9,
+                             'x': 0.5,
+                             'xanchor': 'center',
+                             'yanchor': 'top'},
+                      xaxis_title="Model Accuracy Decrease",
+                      yaxis_title="Features",
+                      width=1000,
+                      height=500)
 
     return fig
+
 
 def confusion_matrix():
     """Graphs confusion matrix table"""
     fig = go.Figure(data=go.Heatmap(
-                        z=[[111, 784], [725, 580]],
-                        x=["Shipment Late", "Shipment On Time"],
-                        y=["Shipment late", "Shipment On Time"],
-                        colorscale="Viridis"))
+        z=[[111, 784], [725, 580]],
+        x=["Shipment Late", "Shipment On Time"],
+        y=["Shipment late", "Shipment On Time"],
+        colorscale="Viridis"))
     fig.update_layout(title={"text": "Confusion Matrix",
-                            'y':0.9,
-                            'x':0.5,
-                            'xanchor': 'center',
-                            'yanchor': 'top'},
-                    xaxis_title="Predicted Label",
-                    yaxis_title="True Label",
-                    width=600,
-                    height=500)
+                             'y': 0.9,
+                             'x': 0.5,
+                             'xanchor': 'center',
+                             'yanchor': 'top'},
+                      xaxis_title="Predicted Label",
+                      yaxis_title="True Label",
+                      width=600,
+                      height=500)
     return fig
+
 
 # ----------------------------------------------------------------------
 # App layout
@@ -117,11 +120,10 @@ app.layout = html.Div([
     html.Div([
         html.H1("Shipping Dashboard", style={'text-align': 'center'}),
         html.Br(),
-        html.Div("""ABOUT THIS DASHBOARD""", 
-                    style={'color': 'black', 'fontSize': 30}),
-                dcc.Link(href=
-                        "https://www.kaggle.com/prachi13/customer-analytics"),
-                dcc.Markdown("""This dashboard was created using E-Commerce
+        html.Div("""ABOUT THIS DASHBOARD""",
+                 style={'color': 'black', 'fontSize': 30}),
+        dcc.Link(href="https://www.kaggle.com/prachi13/customer-analytics"),
+        dcc.Markdown("""This dashboard was created using E-Commerce
                             shipping data from Kaggle. Below are some
                             important insights from exploring the data as well
                             as a predictor at the bottom of the webpage. The
@@ -130,9 +132,9 @@ app.layout = html.Div([
                             which is a binary value representing if a product
                             arrived to the customer on time."""),
 
-                html.Div("Permutation Feature Importance", 
-                    style={'color': 'black', 'fontSize': 20}),
-                dcc.Markdown("""The permutation feature importance ranks each
+        html.Div("Permutation Feature Importance",
+                 style={'color': 'black', 'fontSize': 20}),
+        dcc.Markdown("""The permutation feature importance ranks each
                              feature by its influence to the model score. It
                              does so by randomly shuffling every observation
                              for each individual feature and evaluates the
@@ -140,7 +142,7 @@ app.layout = html.Div([
                              in model score is indicative of how much the
                              model depends on that feature in predicting
                              the target variable."""),
-                dcc.Markdown("""In our dataset, `Weight_in_gms` accounts for
+        dcc.Markdown("""In our dataset, `Weight_in_gms` accounts for
                              ~6.5% variability in our model score. This means
                              that if this feature were to be randomly
                              shuffled, the model score would drop by 6.5%, on
@@ -149,37 +151,37 @@ app.layout = html.Div([
                              most important feature and the features
                              contributing less than 1% variablility are
                              negligible and contribute noise to the model."""),
-                html.Div("Confusion Matrix",
-                        style={'color': 'black', 'fontSize': 20}),
-                dcc.Markdown("""The confusion matrix table indicates
+        html.Div("Confusion Matrix",
+                 style={'color': 'black', 'fontSize': 20}),
+        dcc.Markdown("""The confusion matrix table indicates
                              the performance of a classification model.
                              Our confusion matrix tells us that our model
                              has a high Recall Score (88%) but low Precision
                              Score (57%) with an Accuracy Score of 69%
                              (starting from 50% baseline). """),
-                html.Div("Scatter Plot",
-                        style={'color': 'black', 'fontSize': 20}),
-                dcc.Markdown("""The scatter plot illustrates the relationship
+        html.Div("Scatter Plot",
+                 style={'color': 'black', 'fontSize': 20}),
+        dcc.Markdown("""The scatter plot illustrates the relationship
                              between the chosen feature and the target variable
                              `Reached_on_time`. Note that beyond `Weight_in_gms`
                              and `Discount_offered`, a significant relationship
                              is not found."""),
-                html.Div("Predict Late Shipping",
-                        style={'color': 'black', 'fontSize': 20}),
-                dcc.Markdown("""Use the interactive dashboard to predict
+        html.Div("Predict Late Shipping",
+                 style={'color': 'black', 'fontSize': 20}),
+        dcc.Markdown("""Use the interactive dashboard to predict
                              if a product will arrive late. Output: (0 - Predicted
                              Late, 1 = Predicted On Time) and the probability
                              of the shipment being late."""),
-                html.Div("Tools",
-                        style={'color': 'black', 'fontSize': 20}),
-                dcc.Markdown("This dashboard was built using Dash by Plotly."),
-                dcc.Markdown("""The Gradient Boosting Classifier model is from
+        html.Div("Tools",
+                 style={'color': 'black', 'fontSize': 20}),
+        dcc.Markdown("This dashboard was built using Dash by Plotly."),
+        dcc.Markdown("""The Gradient Boosting Classifier model is from
                              Sci-kit Learn's library."""),
-                dcc.Markdown("This app is being served on an AWS EC2 instance."),
+        dcc.Markdown("This app is being served on an AWS EC2 instance."),
 
-                html.Div("Improvements",
-                        style={'color': 'black', 'fontSize': 20}),
-                dcc.Markdown("""In order to improve this dashboard, I would
+        html.Div("Improvements",
+                 style={'color': 'black', 'fontSize': 20}),
+        dcc.Markdown("""In order to improve this dashboard, I would
                              first work on improving the model. Although
                              I delivered the model after a round of tuning
                              using Sci-kit Learn's GridSearch, the model
@@ -190,7 +192,7 @@ app.layout = html.Div([
                              improve the model drastically. For the purpose of this
                              project, I decided to leave these irrelevant
                              features in for the sake of interactivity."""),
-                dcc.Markdown("""I would also improve the UI/UX. I acknowledge
+        dcc.Markdown("""I would also improve the UI/UX. I acknowledge
                              this isn't the best looking dashboard but is a
                              MVP that would be delivered to a stakeholder
                              such as a supply chain/logistics manager. This
@@ -201,7 +203,7 @@ app.layout = html.Div([
                              taking the time to explore!"""),
         dbc.Row([
             dbc.Col([
-                dcc.Graph(id='perm_imp', figure=permutation_graph()),                
+                dcc.Graph(id='perm_imp', figure=permutation_graph()),
             ]),
             dbc.Col([
                 html.Div([
@@ -212,20 +214,23 @@ app.layout = html.Div([
         html.Div("Scatter Plot", style={'color': 'black', 'fontSize': 30}),
         html.Br(),
         dcc.Dropdown(id="feature",
-                    options=[
+                     options=[
                         {"label": "Weight_in_gms", "value": "Weight_in_gms"},
                         {"label": "Discount_offered", "value": "Discount_offered"},
                         {"label": "Prior_purchases", "value": "Prior_purchases"},
-                        {"label": "Customer_care_calls", "value": "Customer_care_calls"},
-                        {"label": "Cost_of_the_Product", "value": "Cost_of_the_Product"},
+                        {"label": "Customer_care_calls",
+                            "value": "Customer_care_calls"},
+                        {"label": "Cost_of_the_Product",
+                            "value": "Cost_of_the_Product"},
                         {"label": "Warehouse_block", "value": "Warehouse_block"},
-                        {"label": "Customer_rating", "value": "Customer_rating"},
+                        # {"label": "Customer_rating", "value": "Customer_rating"},
                         {"label": "Mode_of_Shipment", "value": "Mode_of_Shipment"},
-                        {"label": "Product_importance", "value": "Product_importance"},
+                        {"label": "Product_importance",
+                            "value": "Product_importance"},
                         {"label": "Gender", "value": "Gender"}],
-                    placeholder="Choose Feature",
-                    style={'width': "40%"}
-                    ),
+                     placeholder="Choose Feature",
+                     style={'width': "40%"}
+                     ),
         dbc.Row([
             dbc.Col([
                 dcc.Graph(id='scatter', figure={}),
@@ -235,8 +240,8 @@ app.layout = html.Div([
         ]),
         dbc.Row([
             dbc.Col([
-                html.Div("""Predict Late Shipping""", 
-	    	             style={'color': 'black', 'fontSize': 30}),
+                html.Div("""Predict Late Shipping""",
+                         style={'color': 'black', 'fontSize': 30}),
                 html.Br(),
                 dcc.Dropdown(
                     id='Warehouse_block',
@@ -266,22 +271,22 @@ app.layout = html.Div([
                     type="number",
                     style={'width': '100%'}
                 ),
-                html.Br(),
-                html.Br(),
-                dcc.Markdown("Customer Rating"),
-                dcc.Slider(
-                    id="Customer_rating",
-                    min=1,
-                    max=5,
-                    step=1,
-                    marks={
-                        1: "1",
-                        2: "2",
-                        3: "3",
-                        4: "4",
-                        5: "5"
-                    },
-                ),
+                # html.Br(),
+                # html.Br(),
+                # dcc.Markdown("Customer Rating"),
+                # dcc.Slider(
+                #     id="Customer_rating",
+                #     min=1,
+                #     max=5,
+                #     step=1,
+                #     marks={
+                #         1: "1",
+                #         2: "2",
+                #         3: "3",
+                #         4: "4",
+                #         5: "5"
+                #     },
+                # ),
                 html.Br(),
                 dcc.Input(
                     id="Cost_of_the_Product",
@@ -295,10 +300,10 @@ app.layout = html.Div([
                 html.Br(),
                 html.Br(),
                 dbc.Button(
-                        id="button",
-                        n_clicks=0,
-                        children="Submit",
-                        color="primary"
+                    id="button",
+                    n_clicks=0,
+                    children="Submit",
+                    color="primary"
                 ),
             ], md=4),
             dbc.Col([
@@ -351,7 +356,8 @@ app.layout = html.Div([
                 html.Br(),
                 html.Br(),
                 html.Br(),
-                dcc.Markdown("Prediction (0 - Predicted Late, 1 - Predicted On Time)"),
+                dcc.Markdown(
+                    "Prediction (0 - Predicted Late, 1 - Predicted On Time)"),
                 html.Div(id="prediction"),
                 html.Br(),
                 dcc.Markdown("Probability of Late Shipment"),
@@ -363,12 +369,12 @@ app.layout = html.Div([
 
 # ----------------------------------------------------------------
 # Connect the Plotly graphs with Dash Components
+
+
 @app.callback(
-     Output(component_id='scatter', component_property='figure'),
+    Output(component_id='scatter', component_property='figure'),
     [Input(component_id='feature', component_property='value')]
 )
-
-
 def create_scatter(feature):
     """
     Creates scatter plot based on feature chosen by the user.
@@ -381,15 +387,19 @@ def create_scatter(feature):
         feature_list = X_test[feature].values.tolist()
         proba = model.predict_proba(X_test)
 
-        proba_data = proba[:, :1]
-        proba_list = [proba_data[i][0] for i in range(len(proba_data))]
+        late_proba = proba[:, :1]
+        proba_list = [late_proba[i][0] for i in range(len(late_proba))]
 
-        data = {f"{feature}": feature_list, "late_shipment_probability": proba_list}
+        data = {feature: feature_list, "late_shipment_probability": proba_list}
         df_proba = pd.DataFrame(data=data)
 
-        fig = px.scatter(df_proba, x=df_proba[feature], y=df_proba["late_shipment_probability"],
-                         trendline="ols", size_max=30)
-        fig.update_layout(title=f'{feature} Scatter Plot')
+        fig = px.scatter(
+            df_proba,
+            x=df_proba[feature],
+            y=df_proba["late_shipment_probability"],
+            trendline="ols",
+            size_max=30)
+        fig.update_layout(title=feature + 'Scatter Plot')
 
     return fig
 
@@ -401,7 +411,7 @@ def create_scatter(feature):
     [State("Warehouse_block", "value"),
      State("Mode_of_Shipment", "value"),
      State("Customer_care_calls", "value"),
-     State("Customer_rating", "value"),
+     #  State("Customer_rating", "value"),
      State("Cost_of_the_Product", "value"),
      State("Prior_purchases", "value"),
      State("Product_importance", "value"),
@@ -409,10 +419,8 @@ def create_scatter(feature):
      State("Discount_offered", "value"),
      State("Weight_in_gms", "value")]
 )
-
-
 def predict_late_shipment(n_clicks, Warehouse_block, Mode_of_Shipment,
-                          Customer_care_calls, Customer_rating,
+                          Customer_care_calls,  # Customer_rating,
                           Cost_of_the_Product, Prior_purchases,
                           Product_importance, Gender, Discount_offered,
                           Weight_in_gms):
@@ -425,17 +433,20 @@ def predict_late_shipment(n_clicks, Warehouse_block, Mode_of_Shipment,
         raise PreventUpdate
     else:
         input_arr = np.array([[Warehouse_block, Mode_of_Shipment,
-                               Customer_care_calls, Customer_rating,
+                               Customer_care_calls,  # Customer_rating,
                                Cost_of_the_Product, Prior_purchases,
                                Product_importance, Gender, Discount_offered,
                                Weight_in_gms]])
         df_inp = pd.DataFrame(data=input_arr, columns=X_test.columns)
         prediction = model.predict(df_inp)
-        predict_proba = str(round(model.predict_proba(df_inp)[0][0] * 100, 2)) + "%"
-        
+        predict_proba = str(
+            round(
+                model.predict_proba(df_inp)[0][0] * 100,
+                2)) + "%"
+
     return prediction, predict_proba
+
 
 # ------------------------------------------------------------------------------
 if __name__ == '__main__':
     app.run_server(debug=True)
-    
