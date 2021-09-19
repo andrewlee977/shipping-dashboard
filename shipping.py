@@ -72,9 +72,8 @@ X_test, y_test = split_data(df)
 
 df_perm = perm_imp(model, X_test, y_test)
 
+
 # Permutation Importance Graph
-
-
 def permutation_graph():
     """Graphs permutation feature importances bar graph"""
     fig = go.Figure(go.Bar(
@@ -92,25 +91,6 @@ def permutation_graph():
                       width=1000,
                       height=500)
 
-    return fig
-
-
-def confusion_matrix():
-    """Graphs confusion matrix table"""
-    fig = go.Figure(data=go.Heatmap(
-        z=[[111, 784], [725, 580]],
-        x=["Shipment Late", "Shipment On Time"],
-        y=["Shipment late", "Shipment On Time"],
-        colorscale="Viridis"))
-    fig.update_layout(title={"text": "Confusion Matrix",
-                             'y': 0.9,
-                             'x': 0.5,
-                             'xanchor': 'center',
-                             'yanchor': 'top'},
-                      xaxis_title="Predicted Label",
-                      yaxis_title="True Label",
-                      width=600,
-                      height=500)
     return fig
 
 
@@ -203,42 +183,99 @@ app.layout = html.Div([
                              taking the time to explore!"""),
         dbc.Row([
             dbc.Col([
+                html.Div(
+                    "Permutation Feature Importance",
+                    style={
+                        'color': 'black',
+                        'fontSize': 30}),
                 dcc.Graph(id='perm_imp', figure=permutation_graph()),
             ]),
+
+
             dbc.Col([
-                html.Div([
-                    dcc.Graph(id='confusion', figure=confusion_matrix())
-                ]),
+                html.Div(
+                    "Histogram",
+                    style={
+                        'color': 'black',
+                        'fontSize': 30}),
+                html.Br(),
+                dcc.Dropdown(id="histogram_feature",
+                             options=[
+                                 {"label": "Weight_in_gms",
+                                     "value": "Weight_in_gms"},
+                                 {"label": "Discount_offered",
+                                     "value": "Discount_offered"},
+                                 {"label": "Prior_purchases",
+                                     "value": "Prior_purchases"},
+                                 {"label": "Customer_care_calls",
+                                  "value": "Customer_care_calls"},
+                                 {"label": "Cost_of_the_Product",
+                                  "value": "Cost_of_the_Product"}],
+                             placeholder="Choose Feature",
+                             style={'width': "40%"}
+                             ),
+                dcc.Graph(id='histogram_graph', figure={}),
             ]),
         ]),
-        html.Div("Scatter Plot", style={'color': 'black', 'fontSize': 30}),
-        html.Br(),
-        dcc.Dropdown(id="feature",
-                     options=[
-                        {"label": "Weight_in_gms", "value": "Weight_in_gms"},
-                        {"label": "Discount_offered", "value": "Discount_offered"},
-                        {"label": "Prior_purchases", "value": "Prior_purchases"},
-                        {"label": "Customer_care_calls",
-                            "value": "Customer_care_calls"},
-                        {"label": "Cost_of_the_Product",
-                            "value": "Cost_of_the_Product"},
-                        {"label": "Warehouse_block", "value": "Warehouse_block"},
-                        # {"label": "Customer_rating", "value": "Customer_rating"},
-                        {"label": "Mode_of_Shipment", "value": "Mode_of_Shipment"},
-                        {"label": "Product_importance",
-                            "value": "Product_importance"},
-                        {"label": "Gender", "value": "Gender"}],
-                     placeholder="Choose Feature",
-                     style={'width': "40%"}
-                     ),
+
+
         dbc.Row([
             dbc.Col([
+                html.Div(
+                    "Scatter Plot",
+                    style={
+                        'color': 'black',
+                        'fontSize': 30}),
+                html.Br(),
+                dcc.Dropdown(id="feature",
+                             options=[
+                                 {"label": "Weight_in_gms",
+                                     "value": "Weight_in_gms"},
+                                 {"label": "Discount_offered",
+                                     "value": "Discount_offered"},
+                                 {"label": "Prior_purchases",
+                                     "value": "Prior_purchases"},
+                                 {"label": "Customer_care_calls",
+                                  "value": "Customer_care_calls"},
+                                 {"label": "Cost_of_the_Product",
+                                  "value": "Cost_of_the_Product"},
+                                 {"label": "Warehouse_block",
+                                     "value": "Warehouse_block"},
+                                 {"label": "Mode_of_Shipment",
+                                     "value": "Mode_of_Shipment"},
+                                 {"label": "Product_importance",
+                                  "value": "Product_importance"},
+                                 {"label": "Gender", "value": "Gender"}],
+                             placeholder="Choose Feature",
+                             style={'width': "40%"}
+                             ),
                 dcc.Graph(id='scatter', figure={}),
             ]),
             dbc.Col([
+                html.Div(
+                    "Pie Chart",
+                    style={
+                        'color': 'black',
+                        'fontSize': 30}),
+                html.Br(),
+                dcc.Dropdown(id="pie_feature",
+                             options=[
+                                 {"label": "Warehouse_block",
+                                     "value": "Warehouse_block"},
+                                 {"label": "Mode_of_Shipment",
+                                     "value": "Mode_of_Shipment"},
+                                 {"label": "Product_importance",
+                                  "value": "Product_importance"},
+                                 {"label": "Gender", "value": "Gender"},
+                                 {"label": "Reached_on_time", "value": "Reached_on_time"}],
+                             placeholder="Choose Feature",
+                             style={'width': "40%"}
+                             ),
+                dcc.Graph(id='pie_chart', figure={}),
             ]),
         ]),
-        dbc.Row([
+    ]),
+    dbc.Row([
             dbc.Col([
                 html.Div("""Predict Late Shipping""",
                          style={'color': 'black', 'fontSize': 30}),
@@ -271,22 +308,7 @@ app.layout = html.Div([
                     type="number",
                     style={'width': '100%'}
                 ),
-                # html.Br(),
-                # html.Br(),
-                # dcc.Markdown("Customer Rating"),
-                # dcc.Slider(
-                #     id="Customer_rating",
-                #     min=1,
-                #     max=5,
-                #     step=1,
-                #     marks={
-                #         1: "1",
-                #         2: "2",
-                #         3: "3",
-                #         4: "4",
-                #         5: "5"
-                #     },
-                # ),
+                html.Br(),
                 html.Br(),
                 dcc.Input(
                     id="Cost_of_the_Product",
@@ -296,15 +318,13 @@ app.layout = html.Div([
                 ),
                 html.Br(),
                 html.Br(),
-                html.Br(),
-                html.Br(),
-                html.Br(),
-                dbc.Button(
-                    id="button",
-                    n_clicks=0,
-                    children="Submit",
-                    color="primary"
+                dcc.Input(
+                    id="Weight_in_gms",
+                    placeholder="Product Weight (Grams)",
+                    type="number",
+                    style={'width': '100%'}
                 ),
+
             ], md=4),
             dbc.Col([
                 html.Br(),
@@ -337,7 +357,6 @@ app.layout = html.Div([
                     placeholder="Gender"
                 ),
                 html.Br(),
-                html.Br(),
                 dcc.Input(
                     id="Discount_offered",
                     placeholder="Discount (%)",
@@ -346,12 +365,11 @@ app.layout = html.Div([
                 ),
                 html.Br(),
                 html.Br(),
-                html.Br(),
-                dcc.Input(
-                    id="Weight_in_gms",
-                    placeholder="Product Weight (Grams)",
-                    type="number",
-                    style={'width': '100%'}
+                dbc.Button(
+                    id="button",
+                    n_clicks=0,
+                    children="Submit",
+                    color="primary"
                 ),
                 html.Br(),
                 html.Br(),
@@ -363,9 +381,15 @@ app.layout = html.Div([
                 dcc.Markdown("Probability of Late Shipment"),
                 html.Div(id="predict_proba")
             ], md=4),
-        ]),
-    ])
+            ]),
+    html.Br(),
+    html.Br(),
+    html.Br(),
+    html.Br(),
+    html.Br(),
+    html.Br(),
 ])
+
 
 # ----------------------------------------------------------------
 # Connect the Plotly graphs with Dash Components
@@ -382,7 +406,12 @@ def create_scatter(feature):
     Adds a line of best fit
     """
     if feature is None:
-        raise PreventUpdate
+        fig = px.scatter(
+            df,
+            x=[0],
+            y=[0],
+            trendline="ols",
+            size_max=30)
     else:
         feature_list = X_test[feature].values.tolist()
         proba = model.predict_proba(X_test)
@@ -405,13 +434,63 @@ def create_scatter(feature):
 
 
 @app.callback(
+    Output(component_id='histogram_graph', component_property='figure'),
+    [Input(component_id='histogram_feature', component_property='value')]
+)
+def create_histogram(histogram_feature):
+    """
+    Takes the continous feature chosen by the user and plots the
+    distribution of the feature's class values in a bar chart
+    """
+    if histogram_feature is None:
+        fig = px.bar(df, x=[0], y=[0],
+                     title="Plot Continuous Features")
+    else:
+        series = df[histogram_feature].value_counts()
+        series = series.sort_index()
+
+        categories = list(series.index)
+        values = list(series.values)
+
+        fig = px.bar(df, x=categories, y=values,
+                     title=histogram_feature + " Distribution")
+
+    return fig
+
+
+@app.callback(
+    Output(component_id='pie_chart', component_property='figure'),
+    [Input(component_id='pie_feature', component_property='value')]
+)
+def create_pie_chart(pie_feature):
+    """
+    Takes the categorical feature chosen by the user and plots the
+    distribution of the feature's class values in a pie chart
+    """
+    if pie_feature is None:
+        fig = px.pie(df, values=[0, 0], names=[" ", " "],
+                     title="Categorical Features Proportion")
+    else:
+        series = df[pie_feature].value_counts()
+
+        categories = list(series.index)
+        values = list(series.values)
+
+        fig = px.pie(df, values=values, names=categories,
+                     title=pie_feature + " Class Percentage")
+
+        fig.update_traces(hole=.4, hoverinfo="label+percent+name")
+
+    return fig
+
+
+@app.callback(
     [Output(component_id='prediction', component_property='children'),
      Output(component_id='predict_proba', component_property='children')],
     [Input(component_id='button', component_property='n_clicks')],
     [State("Warehouse_block", "value"),
      State("Mode_of_Shipment", "value"),
      State("Customer_care_calls", "value"),
-     #  State("Customer_rating", "value"),
      State("Cost_of_the_Product", "value"),
      State("Prior_purchases", "value"),
      State("Product_importance", "value"),
@@ -419,11 +498,17 @@ def create_scatter(feature):
      State("Discount_offered", "value"),
      State("Weight_in_gms", "value")]
 )
-def predict_late_shipment(n_clicks, Warehouse_block, Mode_of_Shipment,
-                          Customer_care_calls,  # Customer_rating,
-                          Cost_of_the_Product, Prior_purchases,
-                          Product_importance, Gender, Discount_offered,
-                          Weight_in_gms):
+def predict_late_shipment(
+        n_clicks,
+        Warehouse_block,
+        Mode_of_Shipment,
+        Customer_care_calls,
+        Cost_of_the_Product,
+        Prior_purchases,
+        Product_importance,
+        Gender,
+        Discount_offered,
+        Weight_in_gms):
     """
     Predicts if the data input by the user about a shipment will
     arrive late. Also provides probability of shipment arriving
@@ -432,10 +517,14 @@ def predict_late_shipment(n_clicks, Warehouse_block, Mode_of_Shipment,
     if n_clicks == 0:
         raise PreventUpdate
     else:
-        input_arr = np.array([[Warehouse_block, Mode_of_Shipment,
-                               Customer_care_calls,  # Customer_rating,
-                               Cost_of_the_Product, Prior_purchases,
-                               Product_importance, Gender, Discount_offered,
+        input_arr = np.array([[Warehouse_block,
+                               Mode_of_Shipment,
+                               Customer_care_calls,
+                               Cost_of_the_Product,
+                               Prior_purchases,
+                               Product_importance,
+                               Gender,
+                               Discount_offered,
                                Weight_in_gms]])
         df_inp = pd.DataFrame(data=input_arr, columns=X_test.columns)
         prediction = model.predict(df_inp)
