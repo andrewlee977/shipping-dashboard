@@ -131,9 +131,9 @@ app.layout = html.Div([
                              most important feature and the features
                              contributing less than 1% variablility are
                              negligible and contribute noise to the model."""),
-        html.Div("Histogram",
+        html.Div("Bar Chart",
                  style={'color': 'black', 'fontSize': 20}),
-        dcc.Markdown("""The histogram illustrates the number of shipments
+        dcc.Markdown("""The bar chart illustrates the number of shipments
                              of a chosen continuous feature, split by the 
                              continuous feature's distinct values."""),
         html.Div("Scatter Plot",
