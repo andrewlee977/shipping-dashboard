@@ -1,4 +1,4 @@
-![Dashboard](./app_image.png "Dashboard")
+![Dashboard](./shipping_dashboard_image.png "Dashboard")
 
 # What the app does
 The app shows visualizations from E-Commerce shipping data from Kaggle
