@@ -16,39 +16,76 @@ from sklearn.inspection import permutation_importance
 from sklearn.model_selection import train_test_split
 
 
-def load_data(filepath):
-    """Loads data to read into a DataFrame"""
-    return pd.read_csv(filepath, index_col="ID")
+class Data():
+    """Loads and prepares data and model"""
+
+    def __init__(self, data_path, model_path):
+        """Constructure creates object and assigns initial variables"""
+        self.data_path = data_path
+        self.model_path = model_path
+
+    def load_data(self):
+        """Reads shipping data (csv) into DataFrame"""
+        return pd.read_csv(self.data_path, index_col='ID')
+
+    def load_model(self):
+        """Loads and opens pickled ML model"""
+        return pickle.load(open(self.model_path, 'rb'))
+
+    def split_data(self):
+        """Splits data into X_test, y_test for Permutation Feature Importance
+        graphing"""
+        X = df.drop(columns="Reached_on_time")
+        y = df["Reached_on_time"]
+        _, X_test, _, y_test = train_test_split(X, y, test_size=0.2,
+                                                random_state=42)
+        return X_test, y_test
+
+    def permutation_graph(self):
+        """Creates Permutation Importance DataFrame then
+        visualizes permutation feature importances bar graph"""
+        perm_imp = permutation_importance(model, X_test, y_test, n_repeats=10,
+                                          n_jobs=-1, random_state=42)
+        data = {"imp_mean": perm_imp["importances_mean"],
+                "imp_std": perm_imp["importances_std"]}
+        df_perm = pd.DataFrame(
+            data, index=X_test.columns).sort_values("imp_mean")
+
+        fig = go.Figure(go.Bar(
+            x=df_perm["imp_mean"],
+            y=df_perm.index,
+            orientation='h'))
+
+        fig.update_layout(title={"text": "Permutation Feature Importance",
+                                 'y': 0.9,
+                                 'x': 0.5,
+                                 'xanchor': 'center',
+                                 'yanchor': 'top'},
+                          xaxis_title="Model Accuracy Decrease",
+                          yaxis_title="Features",
+                          width=1000,
+                          height=500)
+        return fig
 
 
-def load_model(filepath):
-    """Loads pretrained model for prediction"""
-    return pickle.load(open(filepath, 'rb'))
+# File paths for data and model
+data_path = "./data/dash_ready_data.csv"
+model_path = "./model/gbc.pk1"
 
+# Instantiate Data object
+data = Data(data_path, model_path)
 
-def split(df):
-    """Splits data into X and y"""
-    X = df.drop(columns="Reached_on_time")
-    y = df["Reached_on_time"]
-    return X, y
+# Instantiate DataFrame
+df = data.load_data()
 
+# Instantiate Model
+model = data.load_model()
 
-def split_data(df):
-    """Splits data using train_test_split"""
-    X, y = split(df)
-    _, X_test, _, y_test = train_test_split(X, y, test_size=0.2,
-                                            random_state=42)
-    return X_test, y_test
+# Split data into X_test, y_test for Permutation Importance graph
+X_test, y_test = data.split_data()
 
-
-def perm_imp(model, X_test, y_test):
-    """Creates Permutation Importance DataFrame for visualization"""
-    perm_imp = permutation_importance(model, X_test, y_test, n_repeats=10,
-                                      n_jobs=-1, random_state=42)
-    data = {"imp_mean": perm_imp["importances_mean"],
-            "imp_std": perm_imp["importances_std"]}
-    df_perm = pd.DataFrame(data, index=X_test.columns).sort_values("imp_mean")
-    return df_perm
+# Create Permutation Feature Importance graph
+fig = data.permutation_graph()
 
 
 external_stylesheets = [
@@ -60,38 +97,6 @@ app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 app.config.suppress_callback_exceptions = True  # see https://dash.plot.ly/urls
 app.title = 'Shipping Dashboard'  # appears in browser title bar
 server = app.server
-
-# ----------
-# Load DataFrame
-df = load_data("./data/dash_ready_data.csv")
-
-# Load Model
-model = load_model("./model/gbc.pk1")
-
-X_test, y_test = split_data(df)
-
-df_perm = perm_imp(model, X_test, y_test)
-
-
-# Permutation Importance Graph
-def permutation_graph():
-    """Graphs permutation feature importances bar graph"""
-    fig = go.Figure(go.Bar(
-        x=df_perm["imp_mean"],
-        y=df_perm.index,
-        orientation='h'))
-
-    fig.update_layout(title={"text": "Permutation Feature Importance",
-                             'y': 0.9,
-                             'x': 0.5,
-                             'xanchor': 'center',
-                             'yanchor': 'top'},
-                      xaxis_title="Model Accuracy Decrease",
-                      yaxis_title="Features",
-                      width=1000,
-                      height=500)
-
-    return fig
 
 
 # ----------------------------------------------------------------------
@@ -107,7 +112,7 @@ app.layout = html.Div([
                             shipping data from Kaggle that contains data from
                             an electronic products company. Below are some
                             important insights from exploring the data as well
-                            as a predictor at the bottom of the webpage. The 
+                            as a predictor at the bottom of the webpage. The
                             target variable is `Reached_on_time`, which is a
                             binary value representing if a product arrived to
                             the customer on time (1 – Reached on time, 0 – Not
@@ -134,7 +139,7 @@ app.layout = html.Div([
         html.Div("Bar Chart",
                  style={'color': 'black', 'fontSize': 20}),
         dcc.Markdown("""The bar chart illustrates the number of shipments
-                             of a chosen continuous feature, split by the 
+                             of a chosen continuous feature, split by the
                              continuous feature's distinct values."""),
         html.Div("Scatter Plot",
                  style={'color': 'black', 'fontSize': 20}),
@@ -162,7 +167,7 @@ app.layout = html.Div([
                     style={
                         'color': 'black',
                         'fontSize': 30}),
-                dcc.Graph(id='perm_imp', figure=permutation_graph()),
+                dcc.Graph(id='perm_imp', figure=fig),
             ]),
 
 
@@ -417,8 +422,10 @@ def create_histogram(bar_feature):
         values = list(series.values)
 
         fig = px.bar(df, x=categories, y=values,
-                        title=bar_feature + " Distribution")
-        fig.update_layout(xaxis_title=bar_feature, yaxis_title='Number of Shipments')
+                     title=bar_feature + " Distribution")
+        fig.update_layout(
+            xaxis_title=bar_feature,
+            yaxis_title='Number of Shipments')
     return fig
 
 
@@ -440,7 +447,7 @@ def create_pie_chart(pie_feature):
         values = list(series.values)
 
         fig = px.pie(df, values=values, names=categories,
-                        title=pie_feature + " Class Proportions")
+                     title=pie_feature + " Class Proportions")
 
         fig.update_traces(hole=.4, hoverinfo="label+percent+name")
     return fig
