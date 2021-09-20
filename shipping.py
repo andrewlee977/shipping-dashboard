@@ -104,14 +104,14 @@ app.layout = html.Div([
                  style={'color': 'black', 'fontSize': 30}),
         dcc.Link(href="https://www.kaggle.com/prachi13/customer-analytics"),
         dcc.Markdown("""This dashboard was created using E-Commerce
-                            shipping data from Kaggle. Below are some
+                            shipping data from Kaggle that contains data from
+                            an electronic products company. Below are some
                             important insights from exploring the data as well
-                            as a predictor at the bottom of the webpage. The
-                            dataset contains data from an electronic products
-                            company. The target variable is `Reached_on_time`,
-                            which is a binary value representing if a product
-                            arrived to the customer on time."""),
-
+                            as a predictor at the bottom of the webpage. The 
+                            target variable is `Reached_on_time`, which is a
+                            binary value representing if a product arrived to
+                            the customer on time (1 – Reached on time, 0 – Not
+                            Reached on time)."""),
         html.Div("Permutation Feature Importance",
                  style={'color': 'black', 'fontSize': 20}),
         dcc.Markdown("""The permutation feature importance ranks each
@@ -131,14 +131,11 @@ app.layout = html.Div([
                              most important feature and the features
                              contributing less than 1% variablility are
                              negligible and contribute noise to the model."""),
-        html.Div("Confusion Matrix",
+        html.Div("Histogram",
                  style={'color': 'black', 'fontSize': 20}),
-        dcc.Markdown("""The confusion matrix table indicates
-                             the performance of a classification model.
-                             Our confusion matrix tells us that our model
-                             has a high Recall Score (88%) but low Precision
-                             Score (57%) with an Accuracy Score of 69%
-                             (starting from 50% baseline). """),
+        dcc.Markdown("""The histogram illustrates the number of shipments
+                             of a chosen continuous feature, split by the 
+                             continuous feature's distinct values."""),
         html.Div("Scatter Plot",
                  style={'color': 'black', 'fontSize': 20}),
         dcc.Markdown("""The scatter plot illustrates the relationship
@@ -146,41 +143,18 @@ app.layout = html.Div([
                              `Reached_on_time`. Note that beyond `Weight_in_gms`
                              and `Discount_offered`, a significant relationship
                              is not found."""),
+        html.Div("Pie Chart",
+                 style={'color': 'black', 'fontSize': 20}),
+        dcc.Markdown("""The Pie Chart illustrates the proportions of total
+                            shipments by the distinct classes of the chosen
+                            categorical feature."""),
         html.Div("Predict Late Shipping",
                  style={'color': 'black', 'fontSize': 20}),
         dcc.Markdown("""Use the interactive dashboard to predict
                              if a product will arrive late. Output: (0 - Predicted
                              Late, 1 = Predicted On Time) and the probability
                              of the shipment being late."""),
-        html.Div("Tools",
-                 style={'color': 'black', 'fontSize': 20}),
-        dcc.Markdown("This dashboard was built using Dash by Plotly."),
-        dcc.Markdown("""The Gradient Boosting Classifier model is from
-                             Sci-kit Learn's library."""),
-        dcc.Markdown("This app is being served on an AWS EC2 instance."),
 
-        html.Div("Improvements",
-                 style={'color': 'black', 'fontSize': 20}),
-        dcc.Markdown("""In order to improve this dashboard, I would
-                             first work on improving the model. Although
-                             I delivered the model after a round of tuning
-                             using Sci-kit Learn's GridSearch, the model
-                             is currently held back by noise from most of
-                             the existing features in the dataset. I would
-                             simplify the model by cutting out all but the
-                             top 3 relevant features. I believe this would
-                             improve the model drastically. For the purpose of this
-                             project, I decided to leave these irrelevant
-                             features in for the sake of interactivity."""),
-        dcc.Markdown("""I would also improve the UI/UX. I acknowledge
-                             this isn't the best looking dashboard but is a
-                             MVP that would be delivered to a stakeholder
-                             such as a supply chain/logistics manager. This
-                             is the product of a week's worth of work, so
-                             improvements can definitely be made, and more
-                             visualizations would be great for a more comprehensive
-                             analysis of the shipping data. Thanks for
-                             taking the time to explore!"""),
         dbc.Row([
             dbc.Col([
                 html.Div(
@@ -212,7 +186,8 @@ app.layout = html.Div([
                                  {"label": "Cost_of_the_Product",
                                   "value": "Cost_of_the_Product"}],
                              placeholder="Choose Feature",
-                             style={'width': "40%"}
+                             style={'width': "60%"},
+                             value='Customer_care_calls'
                              ),
                 dcc.Graph(id='histogram_graph', figure={}),
             ]),
@@ -238,16 +213,10 @@ app.layout = html.Div([
                                  {"label": "Customer_care_calls",
                                   "value": "Customer_care_calls"},
                                  {"label": "Cost_of_the_Product",
-                                  "value": "Cost_of_the_Product"},
-                                 {"label": "Warehouse_block",
-                                     "value": "Warehouse_block"},
-                                 {"label": "Mode_of_Shipment",
-                                     "value": "Mode_of_Shipment"},
-                                 {"label": "Product_importance",
-                                  "value": "Product_importance"},
-                                 {"label": "Gender", "value": "Gender"}],
+                                  "value": "Cost_of_the_Product"}],
                              placeholder="Choose Feature",
-                             style={'width': "40%"}
+                             style={'width': "60%"},
+                             value='Weight_in_gms'
                              ),
                 dcc.Graph(id='scatter', figure={}),
             ]),
@@ -269,7 +238,8 @@ app.layout = html.Div([
                                  {"label": "Gender", "value": "Gender"},
                                  {"label": "Reached_on_time", "value": "Reached_on_time"}],
                              placeholder="Choose Feature",
-                             style={'width': "40%"}
+                             style={'width': "60%"},
+                             value='Warehouse_block'
                              ),
                 dcc.Graph(id='pie_chart', figure={}),
             ]),
@@ -406,12 +376,7 @@ def create_scatter(feature):
     Adds a line of best fit
     """
     if feature is None:
-        fig = px.scatter(
-            df,
-            x=[0],
-            y=[0],
-            trendline="ols",
-            size_max=30)
+        raise PreventUpdate
     else:
         feature_list = X_test[feature].values.tolist()
         proba = model.predict_proba(X_test)
@@ -428,7 +393,7 @@ def create_scatter(feature):
             y=df_proba["late_shipment_probability"],
             trendline="ols",
             size_max=30)
-        fig.update_layout(title=feature + 'Scatter Plot')
+        fig.update_layout(title=feature + ' Scatter Plot')
 
     return fig
 
@@ -443,8 +408,7 @@ def create_histogram(histogram_feature):
     distribution of the feature's class values in a bar chart
     """
     if histogram_feature is None:
-        fig = px.bar(df, x=[0], y=[0],
-                     title="Plot Continuous Features")
+        raise PreventUpdate
     else:
         series = df[histogram_feature].value_counts()
         series = series.sort_index()
@@ -453,8 +417,8 @@ def create_histogram(histogram_feature):
         values = list(series.values)
 
         fig = px.bar(df, x=categories, y=values,
-                     title=histogram_feature + " Distribution")
-
+                        title=histogram_feature + " Distribution")
+        fig.update_layout(xaxis_title=histogram_feature, yaxis_title='Number of Shipments')
     return fig
 
 
@@ -468,8 +432,7 @@ def create_pie_chart(pie_feature):
     distribution of the feature's class values in a pie chart
     """
     if pie_feature is None:
-        fig = px.pie(df, values=[0, 0], names=[" ", " "],
-                     title="Categorical Features Proportion")
+        raise PreventUpdate
     else:
         series = df[pie_feature].value_counts()
 
@@ -477,10 +440,9 @@ def create_pie_chart(pie_feature):
         values = list(series.values)
 
         fig = px.pie(df, values=values, names=categories,
-                     title=pie_feature + " Class Percentage")
+                        title=pie_feature + " Class Proportions")
 
         fig.update_traces(hole=.4, hoverinfo="label+percent+name")
-
     return fig
 
 
