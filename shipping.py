@@ -168,12 +168,12 @@ app.layout = html.Div([
 
             dbc.Col([
                 html.Div(
-                    "Histogram",
+                    "Bar Chart",
                     style={
                         'color': 'black',
                         'fontSize': 30}),
                 html.Br(),
-                dcc.Dropdown(id="histogram_feature",
+                dcc.Dropdown(id="bar_feature",
                              options=[
                                  {"label": "Weight_in_gms",
                                      "value": "Weight_in_gms"},
@@ -400,25 +400,25 @@ def create_scatter(feature):
 
 @app.callback(
     Output(component_id='histogram_graph', component_property='figure'),
-    [Input(component_id='histogram_feature', component_property='value')]
+    [Input(component_id='bar_feature', component_property='value')]
 )
-def create_histogram(histogram_feature):
+def create_histogram(bar_feature):
     """
     Takes the continous feature chosen by the user and plots the
     distribution of the feature's class values in a bar chart
     """
-    if histogram_feature is None:
+    if bar_feature is None:
         raise PreventUpdate
     else:
-        series = df[histogram_feature].value_counts()
+        series = df[bar_feature].value_counts()
         series = series.sort_index()
 
         categories = list(series.index)
         values = list(series.values)
 
         fig = px.bar(df, x=categories, y=values,
-                        title=histogram_feature + " Distribution")
-        fig.update_layout(xaxis_title=histogram_feature, yaxis_title='Number of Shipments')
+                        title=bar_feature + " Distribution")
+        fig.update_layout(xaxis_title=bar_feature, yaxis_title='Number of Shipments')
     return fig
 
 
