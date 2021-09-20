@@ -32,4 +32,10 @@ The dataset contains 10,999 observations and 10 features. The 10 features are:
 ### Target Variable
 • `Reached_on_time` – It is the target variable, where 1 Indicates that the product has NOT reached on time and 0 indicates it has reached on time. Switched to 1 = Reached on time and 0 = Not reached on time.
 
+### Tools
+This dashboard was built using Dash by Plotly. The predictor uses a trained Gradient Boosting Classifier model from Sci-kit Learn's library. This application is being served on AWS via Heroku.
 
+### Improvements
+In order to improve this dashboard, I would first work on improving the model. Although I delivered the model after a round of tuning using Sci-kit Learn's GridSearch, the model is currently held back by noise from a few of the existing features in the dataset. Removing these features would improve the model. For the purpose of this project, I decided to leave most of the features in training the model for the sake of interactivity. 
+
+I would also improve the UI/UX. I acknowledge this isn't the best looking dashboard but is an MVP that would be delivered to a stakeholder such as a supply chain/logistics manager. This is the product of a week's worth of work, so improvements can definitely be made, and more visualizations would be great for a more comprehensive analysis of the shipping data. Thanks for taking the time to explore!"""),
