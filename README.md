@@ -68,6 +68,13 @@ Number of products that have a discount greater than 10% – 2647
 2. `Discount_offered` – From the graph, one can see that products whose discount is above 10% see a 100% late shipment probability. This was verified with additional EDA where products with less than or equal to 10% discount and products with greater than 10% discount see a 46.9% and 100% late shipment rate, respectively.
 3. `Prior_purchases`, `Customer_care_calls`, and `Cost_of_the_Product` do not seem to have any significant effect on late shipment probabilities.
 
+#### Pie Chart
+`Warehouse_block` – 33.3% of products come from Warehouse_block F. Every other Warehouse_block (A, B, C, D) each have 16.7% of all products in the data.
+`Mode_of_Shipment` – Ship is the most common Mode_of_Shipment (67.8%). Flight and Road account for 16.2% and 16% of the rest of the products.
+`Product_importance` – Products have a Product_importance of either 'low', 'medium', or 'high', which account for 48.2%, 43.2%, and 8.62% of all products, respectively.
+`Gender` – Customers are either male (49.6%) or female (50.4%).
+`Reached_on_time` – Of all orders in the dataset, 59.7% of orders arrived late and 40.3% arrive on time.
+
 ### Improvements
 In order to improve this dashboard, I would first work on improving the model. Although I delivered the model after a round of tuning using Sci-kit Learn's GridSearch, the model is currently held back by noise from a few of the existing features in the dataset. Removing these features would improve the model. For the purpose of this project, I decided to leave most of the features in training the model for the sake of interactivity. 
 
