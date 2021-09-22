@@ -16,10 +16,15 @@ from sklearn.inspection import permutation_importance
 from sklearn.model_selection import train_test_split
 
 
+# File paths for data and model
+data_path = "./data/dash_ready_data.csv"
+model_path = "./model/gbc.pk1"
+
+
 class Data():
     """Loads and prepares data and model"""
 
-    def __init__(self, data_path, model_path):
+    def __init__(self, data_path=data_path, model_path=model_path):
         """Constructure creates object and assigns initial variables"""
         self.data_path = data_path
         self.model_path = model_path
@@ -68,12 +73,8 @@ class Data():
         return fig
 
 
-# File paths for data and model
-data_path = "./data/dash_ready_data.csv"
-model_path = "./model/gbc.pk1"
-
 # Instantiate Data object
-data = Data(data_path, model_path)
+data = Data()
 
 # Instantiate DataFrame
 df = data.load_data()
