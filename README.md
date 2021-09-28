@@ -66,9 +66,9 @@ Number of products that have a discount greater than 10% – 2647
 `Cost_of_the_Product` – Product costs range from $96 to $310. Looks like a blend of normal and uniform distribution.
 
 ### Scatter Plot
-1. `Weight_in_gms` – As you can see from the graph, products with weights between 2000 and 4000 grams (4.4 to 8.8 lbs) have a much higher probability of arriving late. With additional EDA, I was able to validate the accuracy of these probabilities by verifying that 99.8% of products between 2000 and 4000 grams arrive late in this dataset. I juxtaposed this with products whose weights are less than 2000 grams and products whose weights are greater than 4000 grams, and found that 67.8% and 43.2% of those products are arriving late, respectively. 
-2. `Discount_offered` – From the graph, one can see that products whose discount is above 10% see a 100% late shipment probability. This was verified with additional EDA where products with less than or equal to 10% discount and products with greater than 10% discount see a 46.9% and 100% late shipment rate, respectively.
-3. `Prior_purchases`, `Customer_care_calls`, and `Cost_of_the_Product` do not seem to have any significant effect on late shipment probabilities.
+1. `Weight_in_gms` – As you can see from the graph, products with weights between 2000 and 4000 grams (4.4 to 8.8 lbs) have a much higher probability of arriving late. With additional EDA, I was able to validate the accuracy of these probabilities by verifying that 99.8% of products between 2000 and 4000 grams arrive late in this dataset. I juxtaposed this with products whose weights are less than 2000 grams and products whose weights are greater than 4000 grams, and found that 67.8% and 43.2% of those products are arriving late, respectively. It's interesting to note that 67.5% of products weighing between 2000 and 4000 grams are shipped via Ship, and that 67.9% of late shipments are shipped via Ship.
+3. `Discount_offered` – From the graph, one can see that products whose discount is above 10% see a 100% late shipment probability. This was verified with additional EDA where products with less than or equal to 10% discount and products with greater than 10% discount see a 46.9% and 100% late shipment rate, respectively.
+4. `Prior_purchases`, `Customer_care_calls`, and `Cost_of_the_Product` do not seem to have any significant effect on late shipment probabilities.
 
 ### Pie Chart
 `Warehouse_block` – 33.3% of products come from Warehouse_block F. Every other Warehouse_block (A, B, C, D) each have 16.7% of all products in the data.
